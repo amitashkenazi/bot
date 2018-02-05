@@ -53,10 +53,10 @@ def onclick(event):
 command = 'klines'
 
 parameters = {
-    "symbol":"LSKBTC",
+    "symbol":"CNDBTC",
     "interval": "5m",
     "limit": "500",
-    "startTime": "1506964411",
+    # "startTime": "1506964411",
     # "endTime": "1507223611",
 }
 
@@ -106,11 +106,11 @@ ax.autoscale_view()
 plt.setp(plt.gca().get_xticklabels(), rotation=45, horizontalalignment='right')
 ax.plot(times, EMA1, 'g')
 ax.plot(times, EMA2, 'r')
-# ax2 = ax.twinx()
+ax2 = ax.twinx()
 eamspread = ((EMA2 / EMA1) - 1) * 100
 
-# ax2.plot(times, eamspread, 'b')
-# ax2.axhline(-0.5)
+ax2.plot(times, eamspread, 'b')
+ax2.axhline(-0.5)
 fig.tight_layout()
 
 fig, ax3 = plt.subplots()
