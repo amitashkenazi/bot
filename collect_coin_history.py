@@ -53,12 +53,13 @@ fieldnames = [
 
 start_time = 0
 i = 0
-mcs = marketcaps()
-# mcs = ["ETH"]
+# mcs = marketcaps()
+mcs = ["ETH"]
 for coin in mcs:
     symbol = "{}BTC".format(coin)
     coins_collection = connection[symbol]
     print symbol
+    result = connection[symbol].delete_many({})
     end_time = int(time.time()*1000)
     start_time = 1500004618000 + (i*time_diff_sec)
     i = 0 
