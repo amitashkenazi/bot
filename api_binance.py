@@ -1,6 +1,11 @@
 import requests
+from requests import Request, Session
+from requests.exceptions import ConnectionError, Timeout, TooManyRedirects
 import json
 import ast
+import logging
+from pprint import pprint
+logger = logging.getLogger(__name__)
 
 kline_return_struct = [
         "Open time", #0
@@ -20,7 +25,7 @@ kline_return_struct = [
 def command_request(command, parameters):
     build_command = command + "?"
 
-    for k, v in parameters.iteritems():
+    for k, v in parameters.items():
         build_command += k + "=" + v + "&"
     build_command = build_command[:-1]
     r_type = dict
@@ -31,7 +36,7 @@ def command_request(command, parameters):
     if len(data) == 0:
         return {"data": [], "type": r_type, "error": -2}
     if str(data[1]) == 'code':
-        print "coin not found"
+        print("coin not found")
         return {"data": [], "type": None, "error": -1}
     return {"data": data, "type": r_type, "error": 0}
 
@@ -45,38 +50,40 @@ def get_symbols():
     r_symbols = info["symbols"]
     symbols = []
     for s in r_symbols:
-        print s
         symbols.append(s["symbol"])
     return symbols
 
 def marketcaps():
-    response_struct = ["id", "name", "symbol", "rank", "price_usd", "price_btc", "24h_volume_usd", "market_cap_usd", "available_supply", "total_supply", "max_supply", "percent_change_1h", "percent_change_24h", "percent_change_7d", "last_updated"]
-    r = requests.get('https://api.coinmarketcap.com/v1/ticker/')
-    start = False
-    resp = {}
-    results = []
-    for l in r.text.splitlines():
-        if l.find(response_struct[0]) > 0:
-            start = True
-            resp = {}
-            idx = 0
-        if start:
-            key_pos = l.find(response_struct[idx])
-            comma_pos = l.find(',')
-            resp[response_struct[idx]] = l[key_pos+len(response_struct[idx])+4:comma_pos-1]
-            idx += 1
-        if l.find(response_struct[-1]) > 0:
-            results.append(resp)
-            start = False
-    market_caps = {}
-    for r in results:
-        try:
-            mc = int(float(r["market_cap_usd"]))
-        except:
-            print "error coverting market cap"
-        else:
-            market_caps[str(r["symbol"])] = mc
-    return market_caps
+    # response_struct = ["id", "name", "symbol", "rank", "price_usd", "price_btc", "24h_volume_usd", "market_cap_usd", "available_supply", "total_supply", "max_supply", "percent_change_1h", "percent_change_24h", "percent_change_7d", "last_updated"]
+    url = 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest'
+    parameters = {
+    'start':'1',
+    'limit':'5000',
+    'convert':'USD'
+    }
+    headers = {
+    'Accepts': 'application/json',
+    'X-CMC_PRO_API_KEY': 'dc5b9509-4fdd-474b-8317-88ed3d5b4bf6',
+    }
+
+    session = Session()
+    session.headers.update(headers)
+
+    try:
+        response = session.get(url, params=parameters)
+        data = json.loads(response.text)
+    except (ConnectionError, Timeout, TooManyRedirects) as e:
+        print(e)
+    logger.info(data.keys())
+    logger.info(len(data["data"]))
+    for d in data["data"]:
+        logger.info(f"{d['name']} - {d['quote']['USD']['market_cap']}")
+    return data
 
 
 
+if __name__ == "__main__":
+    formatter = "[%(asctime)s] :: %(levelname)s :: %(name)15s:: %(filename)18s:%(lineno)d  :  %(message)s" 
+    logging.basicConfig(level=logging.DEBUG, format=formatter)
+    logger.info(marketcaps())
+    # logger.info(get_symbols())

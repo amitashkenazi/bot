@@ -34,7 +34,7 @@ while 1:
         price.append(r['price'])
     for k in sorted(price_count.keys()):
         # print k, price_count[k]
-        if price_count[k] > 3:
+        if price_count[k] > 8:
             calc_price = k
             break
     res = requests.get(my_orders_get)

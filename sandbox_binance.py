@@ -1,6 +1,6 @@
 import requests
 import json
-from mpl_finance import candlestick_ohlc
+import mplfinance 
 import matplotlib.pyplot as plt
 from matplotlib.dates import DateFormatter, WeekdayLocator,DayLocator, MONDAY
 import numpy as np
@@ -47,7 +47,7 @@ def onclick(event):
     print('%s click: button=%d, x=%d, y=%d, xdata=%f, ydata=%f' %
           ('double' if event.dblclick else 'single', event.button,
            event.x, event.y, event.xdata, event.ydata))
-    print event.xdata 
+    print(event.xdata) 
     pyperclip.copy("{}".format(int(event.xdata)))
 
 command = 'klines'
@@ -68,7 +68,7 @@ opens = []
 closes = []
 times = []
 
-print len(data)
+print(len(data))
 for d in data:
     times.append(int(d[0])/1000)
     opens.append(float(d[1]))
@@ -100,23 +100,4 @@ window = 12
 EMA2 = exp_moving_average(closes, window)
 # EMA2 = np.array(sma(closes, window))
 
-lines, patches = candlestick_ohlc(ax, quote, width=0.6)
-ax.xaxis_date()
-ax.autoscale_view()
-plt.setp(plt.gca().get_xticklabels(), rotation=45, horizontalalignment='right')
-ax.plot(times, EMA1, 'g')
-ax.plot(times, EMA2, 'r')
-ax2 = ax.twinx()
-eamspread = ((EMA2 / EMA1) - 1) * 100
-
-ax2.plot(times, eamspread, 'b')
-ax2.axhline(-0.5)
-fig.tight_layout()
-
-fig, ax3 = plt.subplots()
-plt.plot(times, eamspread, 'b')
-plt.axhline(-0.5)
-cid = fig.canvas.mpl_connect('button_press_event', onclick)
-
-plt.show()
 
